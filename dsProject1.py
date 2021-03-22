@@ -108,3 +108,8 @@ df['Collision Type'].isna().sum()
 df['Collision Type'].replace(to_replace = np.nan, value = "UNKNOWN", inplace=True)
 collision_injury_cross = pd.crosstab(df['Collision Type'],df['Injury Severity'])
 collision_injury_cross.plot.bar()
+
+df['Vehicle Damage Extent'].value_counts()
+df['Vehicle Damage Extent'].isna().sum()
+damage_injury_cross = pd.crosstab(df['Vehicle Damage Extent'],df['Injury Severity'])
+damage_injury_cross.plot.bar()
