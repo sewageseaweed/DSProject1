@@ -22,7 +22,18 @@ df['Driver Distracted By'].isna().sum()
 
 df.shape
 
-df.isna().sum()
+#121,400 Rows
+#44 Columns
+
+
+
+df.isna().sum().sum()
+#703278 Rows that are NA
+
+df.isna().sum() / len(df)
+#This is the fraction of na values per column in a scale of 0-1.
+
+
 #drop municipilaty, off road desc, related non motor, non-motorist substance abuse, Non-Motorist Substance Abuse Maybe? 
 
 df['Non-Motorist Substance Abuse'].value_counts()
@@ -33,7 +44,7 @@ df['Non-Motorist Substance Abuse'].value_counts()
 #
 
 ############# PLOT 1 #############
-# CHECKS IF DISTRACTED 
+# CHECKS IF DISTRACTED and Imputes if they are distracted or not 
 def distracted(x):
     if x == 'NOT DISTRACTED':
         return False
@@ -70,3 +81,30 @@ for i in enumerate(df['Injury Severity'].unique()):
     plt.ylabel("Distraction")
     plt.title(i[1])
 plt.suptitle("Distraction Type in Injury Severity", fontsize=15, weight = 'bold')
+
+
+df.columns
+
+#Cross tab of different injury types and if they were distracted or not
+distract_injury_cross = pd.crosstab(df['DISTRACTED'], df['Injury Severity'])
+
+distract_injury_cross.plot.bar()
+##THIS DOESNT LOOK TOO USEFUL VVVV
+#df['Vehicle Body Type'].value_counts()
+#df['Vehicle Body Type'].isna().sum()
+
+#Impute NA Data to Unknown
+#df['Vehicle Body Type'].replace(to_replace = np.nan, value="UNKNOWN", inplace=True)
+
+#carType_injury_cross = pd.crosstab(df['Vehicle Body Type'], df['Injury Severity'])
+#carType_injury_cross.plot.bar()
+
+#Drop columns we dont need
+
+#df.drop(columns=['Report Number', 'Local Case Number', 'Agency Name', ], axis=1, inplace = True)
+
+df['Collision Type'].value_counts()
+df['Collision Type'].isna().sum()
+df['Collision Type'].replace(to_replace = np.nan, value = "UNKNOWN", inplace=True)
+collision_injury_cross = pd.crosstab(df['Collision Type'],df['Injury Severity'])
+collision_injury_cross.plot.bar()
