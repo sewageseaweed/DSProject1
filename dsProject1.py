@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # clyde
-df = pd.read_csv(r"C:\Users\Clyde\Desktop\Crash_Reporting_-_Drivers_Data.csv")
+# df = pd.read_csv(r"C:\Users\Clyde\Desktop\Crash_Reporting_-_Drivers_Data.csv")
 
 # daniel
-# df =  pd.read_csv("/home/daniel/Documents/cst383/project/Crash_Reporting_-_Drivers_Data.csv")
+df =  pd.read_csv("/home/daniel/Documents/cst383/project/Crash_Reporting_-_Drivers_Data.csv")
 
 print(df.columns)
 df['Driver Distracted By'].value_counts()
@@ -44,46 +44,45 @@ df['Non-Motorist Substance Abuse'].value_counts()
 #
 
 ############# PLOT 1 #############
-# CHECKS IF DISTRACTED and Imputes if they are distracted or not 
-def distracted(x):
-    if x == 'NOT DISTRACTED':
-        return False
-    return True
-# NEW COLUMN IN df
-df['DISTRACTED'] = df['Driver Distracted By'].apply(distracted)
+# What are the most common distraction types in car accidents in Montgomery County?
+df['Driver Distracted By'].value_counts().plot.bar()
+plt.title("Most Common Distraction Types")
+plt.ylabel("Count")
+plt.xlabel("Distraction")
 
-# PLOT 
-plt.figure(figsize=(30,15))
-for i in enumerate(df['Injury Severity'].unique()):
-    plt.subplot(1,5, i[0]+1)
-    plt.title(i[1])
-    sns.countplot(x='DISTRACTED', data= df[ df['Injury Severity'] == i[1] ])
-    plt.rc('xtick',labelsize=8)
-    plt.ylabel("Events")
-plt.suptitle("Distraction in Injury Severity", fontsize=20, weight = 'bold')
 
 ############# PLOT 2 #############
 
-# Cleans 'Driver Distracted By'
-def phone(x):
-    if 'CELL PHONE' in x:
-        return 'CELL PHONE'
-    return x
-df['Driver Distracted By'] = df['Driver Distracted By'].apply(phone)
+# Most of the column 'Driver Distracted By' is made up of a handful of values and many values can be combined into one.
+def clean(val):
+    if 'CELLULAR PHONE' in val:
+      return 'DEVICE OR OBJECT'
+    if val in ['LOOKED BUT DID NOT SEE', 'INATTENTIVE OR LOST IN THOUGHT']:
+      return 'INATTENTIVE'
+    if val in ['OTHER ELECTRONIC DEVICE (NAVIGATIONAL PALM PILOT)', 'USING DEVICE OBJECT BROUGHT INTO VEHICLE', 'SMOKING RELATED', 'BY MOVING OBJECT IN VEHICLE', 'EATING OR DRINKING', 'DEVICE']:
+      return 'DEVICE OR OBJECT'
+    if val in ['USING OTHER DEVICE CONTROLS INTEGRAL TO VEHICLE', 'ADJUSTING AUDIO AND OR CLIMATE CONTROLS']:
+      return 'VEHICLE CONTROLS'
+    if val =='DISTRACTED BY OUTSIDE PERSON OBJECT OR EVENT':
+      return 'OUTSIDE'
+    return val
 
-# PLOT
-plt.figure(figsize=(15,20))
-for i in enumerate(df['Injury Severity'].unique()):
-    plt.subplot(5,1, i[0]+1)
-    sns.countplot(y='Driver Distracted By', data= df[ (df['Injury Severity'] == i[1]) & (df['Driver Distracted By'] != 'NOT DISTRACTED') ])
-    plt.rc('xtick',labelsize=8)
-    plt.xlabel("")
-    plt.ylabel("Distraction")
-    plt.title(i[1])
-plt.suptitle("Distraction Type in Injury Severity", fontsize=15, weight = 'bold')
+df['Driver Distracted By'] = df['Driver Distracted By'].apply(clean)
 
+df['Driver Distracted By'].value_counts().plot.bar()
 
-df.columns
+plt.title("Most Common Distraction Types")
+plt.ylabel("Count")
+plt.xlabel("Distraction")
+plt.xticks(rotation = 65);
+
+############# PLOT 3 #############
+# How does the distraction type relate to injury severity?
+dist = df[~df['Driver Distracted By'].isin(['NOT DISTRACTED', 'UNKNOWN'])]
+
+pd.crosstab(dist['Driver Distracted By'], dist['Injury Severity']).plot.bar(stacked=True);
+
+####################################################################
 
 #Cross tab of different injury types and if they were distracted or not
 distract_injury_cross = pd.crosstab(df['DISTRACTED'], df['Injury Severity'])
